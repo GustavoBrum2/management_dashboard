@@ -1,17 +1,28 @@
-# management_dashboard
+# TwinMatch Gestão
 
-A new Flutter project.
+Dashboard Flutter para gerenciar os Digital Twins publicados pelo [agente local](../local_agent).
 
-## Getting Started
+O agente coleta o hardware da máquina, monta um Digital Twin e envia o snapshot atual para o Firebase Realtime Database. Este painel lê essa frota, mostra a configuração de cada máquina e reutiliza a engine de compatibilidade do agente para recomendar upgrades de RAM, SSD e GPU.
 
-This project is a starting point for a Flutter application.
+## Origem dos dados
 
-A few resources to get you started if this is your first Flutter project:
+- **Twins:** `https://twinmatch-659d6-default-rtdb.firebaseio.com/twins.json`
+- **Catálogo:** arquivos em `assets/data/` copiados de `local_agent/src/data/` (RAM, GPU, SSD, CPU e HDD)
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Cada twin remoto contém `machineId`, `name`, timestamps e o snapshot `current` com a `build` já normalizada pelo agente.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Executar
+
+```bash
+flutter pub get
+flutter run -d windows
+```
+
+Na tela inicial, a frota é carregada do Firebase. Abra um Digital Twin e use **Gerar recomendações** para consultar o catálogo local com as mesmas regras do agente.
+
+## Stack
+
+- Flutter / Dart
+- HTTP REST do Firebase Realtime Database
+- Engine de compatibilidade portada de `local_agent/src/domain/rules`
+- Serviço de recomendação MVP portado de `local_agent/src/services/mvp-recommendation-service.ts`
