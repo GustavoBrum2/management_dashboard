@@ -30,6 +30,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Corsair Vengeance'), findsOneWidget);
+    expect(find.text('Custo-benefício'), findsOneWidget);
     expect(find.text('Compatível'), findsWidgets);
   });
 }

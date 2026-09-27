@@ -149,6 +149,75 @@ Ram sampleCompatibleRam() {
   );
 }
 
+Ram sampleBudgetRam() {
+  return const Ram(
+    id: 'ram-budget',
+    name: 'Kingston Fury 24GB DDR5-5600',
+    brand: 'Kingston',
+    type: 'DDR5',
+    capacityGb: 24,
+    speedMhz: 5600,
+    modules: 2,
+  );
+}
+
+Ram samplePremiumRam() {
+  return const Ram(
+    id: 'ram-premium',
+    name: 'G.Skill Trident Z5 RGB 64GB DDR5-6400',
+    brand: 'G.Skill',
+    type: 'DDR5',
+    capacityGb: 64,
+    speedMhz: 6400,
+    modules: 2,
+  );
+}
+
+Gpu sampleBudgetGpu() {
+  return const Gpu(
+    id: 'gpu-budget',
+    name: 'Gigabyte GeForce GTX 1650 4GB',
+    brand: 'Gigabyte',
+    vramGb: 4,
+    lengthMm: 170,
+    slots: 2,
+    tdp: 75,
+    requiredPsuWatts: 0,
+    powerConnectors: [],
+    pcieGeneration: 3,
+  );
+}
+
+Gpu sampleValueGpu() {
+  return const Gpu(
+    id: 'gpu-value',
+    name: 'MSI GeForce RTX 4060 8GB',
+    brand: 'MSI',
+    vramGb: 8,
+    lengthMm: 245,
+    slots: 2,
+    tdp: 115,
+    requiredPsuWatts: 0,
+    powerConnectors: [],
+    pcieGeneration: 4,
+  );
+}
+
+Gpu samplePremiumGpu() {
+  return const Gpu(
+    id: 'gpu-premium',
+    name: 'ASUS ROG STRIX GeForce RTX 4090 24GB',
+    brand: 'ASUS',
+    vramGb: 24,
+    lengthMm: 358,
+    slots: 3,
+    tdp: 450,
+    requiredPsuWatts: 850,
+    powerConnectors: ['8-pin', '8-pin', '8-pin'],
+    pcieGeneration: 4,
+  );
+}
+
 Ram sampleIncompatibleRam() {
   return const Ram(
     id: 'ram-ddr4',

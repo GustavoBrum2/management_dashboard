@@ -27,4 +27,44 @@ void main() {
     expect(result.status, CompatibilityStatus.incompatible);
     expect(result.blockers, isNotEmpty);
   });
+
+  test('recomenda três faixas: econômica, custo-benefício e premium', () async {
+    final service = RecommendationService(
+      FakePartsRepository(
+        ram: [sampleBudgetRam(), sampleCompatibleRam(), samplePremiumRam(), sampleIncompatibleRam()],
+      ),
+    );
+
+    final results = await service.recommend(sampleTwin().build, RecommendationCategory.ram);
+
+    expect(results, hasLength(3));
+    expect(results.map((item) => item.tier), [
+      RecommendationTier.economy,
+      RecommendationTier.value,
+      RecommendationTier.premium,
+    ]);
+    expect(results[0].part.name, contains('24GB'));
+    expect(results[1].part.name, contains('32GB'));
+    expect(results[2].part.name, contains('64GB'));
+  });
+
+  test('escolhe GPU econômica, custo-benefício e premium por família', () async {
+    final service = RecommendationService(
+      FakePartsRepository(
+        gpus: [sampleBudgetGpu(), sampleValueGpu(), samplePremiumGpu()],
+      ),
+    );
+
+    final results = await service.recommend(sampleTwin().build, RecommendationCategory.gpu);
+
+    expect(results, hasLength(3));
+    expect(results[0].part.name, contains('1650'));
+    expect(results[1].part.name, contains('4060'));
+    expect(results[2].part.name, contains('4090'));
+    expect(results.map((item) => item.tier), [
+      RecommendationTier.economy,
+      RecommendationTier.value,
+      RecommendationTier.premium,
+    ]);
+  });
 }

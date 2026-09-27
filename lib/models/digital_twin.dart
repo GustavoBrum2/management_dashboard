@@ -81,14 +81,54 @@ extension RecommendationCategoryLabel on RecommendationCategory {
       };
 }
 
+enum RecommendationTier { economy, value, premium }
+
+extension RecommendationTierCopy on RecommendationTier {
+  String get label => switch (this) {
+        RecommendationTier.economy => 'Econômica',
+        RecommendationTier.value => 'Custo-benefício',
+        RecommendationTier.premium => 'Premium',
+      };
+
+  String get description => switch (this) {
+        RecommendationTier.economy =>
+          'Menor custo relativo entre as opções compatíveis.',
+        RecommendationTier.value =>
+          'Melhor equilíbrio entre desempenho estimado e custo relativo.',
+        RecommendationTier.premium =>
+          'Mais desempenho, com custo relativo mais alto.',
+      };
+}
+
 class MvpRecommendation {
   const MvpRecommendation({
     required this.part,
     required this.result,
     required this.score,
+    this.tier,
+    this.estimatedCost = 0,
+    this.performanceIndex = 0,
   });
 
   final Part part;
   final CompatibilityResult result;
   final double score;
+  final RecommendationTier? tier;
+  final double estimatedCost;
+  final double performanceIndex;
+
+  MvpRecommendation copyWith({
+    RecommendationTier? tier,
+    double? estimatedCost,
+    double? performanceIndex,
+  }) {
+    return MvpRecommendation(
+      part: part,
+      result: result,
+      score: score,
+      tier: tier ?? this.tier,
+      estimatedCost: estimatedCost ?? this.estimatedCost,
+      performanceIndex: performanceIndex ?? this.performanceIndex,
+    );
+  }
 }

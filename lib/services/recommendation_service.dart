@@ -4,6 +4,7 @@ import '../models/compatibility.dart';
 import '../models/digital_twin.dart';
 import '../models/parts.dart';
 import '../models/pc_build.dart';
+import 'part_value.dart';
 
 class RecommendationService {
   RecommendationService(this._repository);
@@ -13,7 +14,7 @@ class RecommendationService {
   Future<List<MvpRecommendation>> recommend(
     PcBuild build,
     RecommendationCategory category, {
-    int limit = 5,
+    int limit = 3,
   }) async {
     final parts = await _parts(category);
     final scored = <MvpRecommendation>[];
@@ -32,9 +33,9 @@ class RecommendationService {
       }
     }
 
-    scored.sort((a, b) => b.score.compareTo(a.score));
-    if (scored.length <= limit) return scored;
-    return scored.sublist(0, limit);
+    final tiered = pickTieredRecommendations(scored, build: build);
+    if (tiered.length <= limit) return tiered;
+    return tiered.sublist(0, limit);
   }
 
   Future<List<Part>> _parts(RecommendationCategory category) async {

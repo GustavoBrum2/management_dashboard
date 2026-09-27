@@ -48,7 +48,7 @@ class RecommendationPanel extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'A mesma engine do agente local: catálogo, regras de compatibilidade e ranking de RAM, SSD e GPU.',
+              'Três opções por análise de custo relativo: econômica, custo-benefício e premium. O catálogo não tem preço de mercado; o custo é estimado pelas especificações.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
@@ -132,6 +132,17 @@ class _RecommendationTile extends StatelessWidget {
                         ),
                   ),
                 ),
+                if (item.tier != null) ...[
+                  StatusBadge(
+                    label: item.tier!.label,
+                    tone: switch (item.tier!) {
+                      RecommendationTier.economy => BadgeTone.ok,
+                      RecommendationTier.value => BadgeTone.value,
+                      RecommendationTier.premium => BadgeTone.premium,
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                ],
                 StatusBadge(
                   label: item.result.statusLabel,
                   tone: item.result.status == CompatibilityStatus.compatible
@@ -140,6 +151,15 @@ class _RecommendationTile extends StatelessWidget {
                 ),
               ],
             ),
+            if (item.tier != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                item.tier!.description,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+              ),
+            ],
             const SizedBox(height: 6),
             Text(
               extra,
