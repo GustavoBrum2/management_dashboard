@@ -17,14 +17,20 @@ class TwinDetailScreen extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final wide = MediaQuery.sizeOf(context).width >= 1100;
 
-    final hardware = HardwarePanel(pcBuild: twin.build);
+    final hardware = HardwarePanel(
+      original: twin.build,
+      simulation: controller.selectedSimulation,
+      onRemoveSimulation: controller.removeSimulation,
+    );
     final recommendations = RecommendationPanel(
       category: controller.recommendationCategory,
       recommendations: controller.recommendations,
       generating: controller.generatingRecommendations,
       missingMotherboard: twin.build.motherboard == null,
+      simulatedPart: controller.selectedSimulation.partFor(controller.recommendationCategory),
       onCategory: controller.setRecommendationCategory,
       onGenerate: () => controller.generateRecommendations(),
+      onSimulate: controller.simulateRecommendation,
     );
 
     return Column(

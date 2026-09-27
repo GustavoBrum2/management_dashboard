@@ -44,7 +44,9 @@ class _TwinsListScreenState extends State<TwinsListScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          'Máquinas registradas pelo agente local e sincronizadas no Firebase.',
+          controller.simulatedTwinCount > 0
+              ? 'Máquinas registradas pelo agente local e sincronizadas no Firebase. ${controller.simulatedTwinCount} com simulação de upgrade neste painel.'
+              : 'Máquinas registradas pelo agente local e sincronizadas no Firebase.',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
@@ -120,13 +122,14 @@ class _TwinsListScreenState extends State<TwinsListScreen> {
                     crossAxisCount: crossAxisCount,
                     mainAxisSpacing: 14,
                     crossAxisSpacing: 14,
-                    childAspectRatio: crossAxisCount == 1 ? 1.7 : 1.15,
+                    childAspectRatio: crossAxisCount == 1 ? 1.35 : 0.88,
                   ),
                   itemCount: twins.length,
                   itemBuilder: (context, index) {
                     final twin = twins[index];
                     return TwinCard(
                       twin: twin,
+                      simulation: controller.simulationFor(twin.machineId),
                       onOpen: () => controller.selectTwin(twin),
                     );
                   },

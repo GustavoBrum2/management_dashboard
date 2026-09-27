@@ -13,6 +13,8 @@ class RecommendationPanel extends StatelessWidget {
     required this.generating,
     required this.onCategory,
     required this.onGenerate,
+    required this.onSimulate,
+    this.simulatedPart,
     this.missingMotherboard = false,
   });
 
@@ -21,6 +23,8 @@ class RecommendationPanel extends StatelessWidget {
   final bool generating;
   final ValueChanged<RecommendationCategory> onCategory;
   final VoidCallback onGenerate;
+  final ValueChanged<MvpRecommendation> onSimulate;
+  final Part? simulatedPart;
   final bool missingMotherboard;
 
   @override
@@ -86,7 +90,14 @@ class RecommendationPanel extends StatelessWidget {
             else if (recommendations.isEmpty)
               const Text('Selecione uma categoria e gere as recomendações compatíveis.')
             else
-              ...recommendations.map((item) => _RecommendationTile(item: item)),
+              ...recommendations.map(
+                (item) => _RecommendationTile(
+                  item: item,
+                  simulating: simulatedPart?.id == item.part.id,
+                  canReplace: simulatedPart != null && simulatedPart?.id != item.part.id,
+                  onSimulate: () => onSimulate(item),
+                ),
+              ),
           ],
         ),
       ),
@@ -95,9 +106,17 @@ class RecommendationPanel extends StatelessWidget {
 }
 
 class _RecommendationTile extends StatelessWidget {
-  const _RecommendationTile({required this.item});
+  const _RecommendationTile({
+    required this.item,
+    required this.simulating,
+    required this.canReplace,
+    required this.onSimulate,
+  });
 
   final MvpRecommendation item;
+  final bool simulating;
+  final bool canReplace;
+  final VoidCallback onSimulate;
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +136,11 @@ class _RecommendationTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.35),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+          border: Border.all(
+            color: simulating
+                ? const Color(0xFF93C5FD).withValues(alpha: 0.55)
+                : Colors.white.withValues(alpha: 0.06),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,6 +201,17 @@ class _RecommendationTile extends StatelessWidget {
                     ),
                   ),
             ],
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: simulating
+                  ? const StatusBadge(label: 'Simulando', tone: BadgeTone.simulation)
+                  : FilledButton.tonalIcon(
+                      onPressed: onSimulate,
+                      icon: Icon(canReplace ? Icons.swap_horiz : Icons.science_outlined),
+                      label: Text(canReplace ? 'Trocar simulação' : 'Simular upgrade'),
+                    ),
+            ),
           ],
         ),
       ),

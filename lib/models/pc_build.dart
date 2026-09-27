@@ -72,6 +72,32 @@ class PcBuild {
         .map((item) => '${item.name} (${storageCapacityOf(item)} GB)')
         .join(' + ');
   }
+
+  PcBuild copyWith({
+    Cpu? cpu,
+    Motherboard? motherboard,
+    List<Ram>? ram,
+    List<Gpu>? gpu,
+    List<Part>? storage,
+    Psu? psu,
+    PcCase? pcCase,
+    Cooler? cooler,
+  }) {
+    return PcBuild(
+      id: id,
+      name: name,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      cpu: cpu ?? this.cpu,
+      motherboard: motherboard ?? this.motherboard,
+      ram: ram ?? this.ram,
+      gpu: gpu ?? this.gpu,
+      storage: storage ?? this.storage,
+      psu: psu ?? this.psu,
+      pcCase: pcCase ?? this.pcCase,
+      cooler: cooler ?? this.cooler,
+    );
+  }
 }
 
 Part? _storageFromJson(dynamic item) {

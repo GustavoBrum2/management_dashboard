@@ -3,6 +3,9 @@ import 'package:flutter/foundation.dart';
 import '../data/parts_repository.dart';
 import '../data/twins_repository.dart';
 import '../models/digital_twin.dart';
+import '../models/parts.dart';
+import '../models/pc_build.dart';
+import '../models/upgrade_simulation.dart';
 import '../services/recommendation_service.dart';
 
 class DashboardController extends ChangeNotifier {
@@ -14,6 +17,7 @@ class DashboardController extends ChangeNotifier {
 
   final TwinsRepository _twinsRepository;
   final RecommendationService _recommendationService;
+  final Map<String, UpgradeSimulation> _simulations = {};
 
   List<RemoteDigitalTwin> twins = const [];
   bool loading = true;
@@ -24,16 +28,41 @@ class DashboardController extends ChangeNotifier {
   RecommendationCategory recommendationCategory = RecommendationCategory.ram;
   List<MvpRecommendation> recommendations = const [];
 
+  UpgradeSimulation get selectedSimulation {
+    final id = selectedTwin?.machineId;
+    if (id == null) return const UpgradeSimulation();
+    return _simulations[id] ?? const UpgradeSimulation();
+  }
+
+  PcBuild? get selectedOriginalBuild => selectedTwin?.build;
+
+  PcBuild? get selectedViewedBuild {
+    final original = selectedOriginalBuild;
+    if (original == null) return null;
+    return applySimulation(original, selectedSimulation);
+  }
+
+  UpgradeSimulation simulationFor(String machineId) {
+    return _simulations[machineId] ?? const UpgradeSimulation();
+  }
+
+  int get simulatedTwinCount => _simulations.values.where((item) => item.isNotEmpty).length;
+
   List<RemoteDigitalTwin> get filteredTwins {
     final query = searchQuery.trim().toLowerCase();
     if (query.isEmpty) return twins;
     return twins.where((twin) {
+      final simulation = simulationFor(twin.machineId);
       final haystack = [
         twin.displayName,
         twin.machineId,
         twin.build.cpu?.name ?? '',
         twin.build.motherboard?.name ?? '',
         twin.build.gpuSummary,
+        twin.build.ramSummary,
+        simulation.ram?.name ?? '',
+        simulation.gpu?.name ?? '',
+        simulation.ssd?.name ?? '',
       ].join(' ').toLowerCase();
       return haystack.contains(query);
     }).toList();
@@ -70,14 +99,15 @@ class DashboardController extends ChangeNotifier {
 
   void selectTwin(RemoteDigitalTwin twin) {
     if (selectedTwin?.machineId == twin.machineId) return;
+    if (selectedTwin != null && selectedTwin!.machineId != twin.machineId) {
+      recommendations = const [];
+    }
     selectedTwin = twin;
-    recommendations = const [];
     notifyListeners();
   }
 
   void clearSelection() {
     selectedTwin = null;
-    recommendations = const [];
     notifyListeners();
   }
 
@@ -90,7 +120,8 @@ class DashboardController extends ChangeNotifier {
 
   Future<void> generateRecommendations() async {
     final twin = selectedTwin;
-    if (twin == null) return;
+    final build = selectedViewedBuild;
+    if (twin == null || build == null) return;
 
     generatingRecommendations = true;
     error = null;
@@ -98,7 +129,7 @@ class DashboardController extends ChangeNotifier {
 
     try {
       final results = await _recommendationService.recommend(
-        twin.build,
+        build,
         recommendationCategory,
       );
       recommendations = results;
@@ -110,4 +141,26 @@ class DashboardController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void simulateRecommendation(MvpRecommendation recommendation) {
+    final twin = selectedTwin;
+    if (twin == null) return;
+    final current = selectedSimulation;
+    _simulations[twin.machineId] = current.withPart(recommendation.part);
+    notifyListeners();
+  }
+
+  void removeSimulation(RecommendationCategory category) {
+    final twin = selectedTwin;
+    if (twin == null) return;
+    final updated = selectedSimulation.without(category);
+    if (updated.isEmpty) {
+      _simulations.remove(twin.machineId);
+    } else {
+      _simulations[twin.machineId] = updated;
+    }
+    notifyListeners();
+  }
+
+  bool isSimulating(Part part) => selectedSimulation.contains(part);
 }

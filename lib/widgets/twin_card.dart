@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/digital_twin.dart';
+import '../models/upgrade_simulation.dart';
 import '../theme/app_theme.dart';
 import 'stat_card.dart';
 
@@ -9,10 +10,12 @@ class TwinCard extends StatelessWidget {
     super.key,
     required this.twin,
     required this.onOpen,
+    this.simulation = const UpgradeSimulation(),
   });
 
   final RemoteDigitalTwin twin;
   final VoidCallback onOpen;
+  final UpgradeSimulation simulation;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +43,10 @@ class TwinCard extends StatelessWidget {
                           ),
                     ),
                   ),
+                  if (simulation.isNotEmpty) ...[
+                    const StatusBadge(label: 'Simulação', tone: BadgeTone.simulation),
+                    const SizedBox(width: 8),
+                  ],
                   StatusBadge(
                     label: twin.current.source == 'native' ? 'Nativo' : twin.current.source,
                     tone: BadgeTone.ok,
@@ -56,8 +63,25 @@ class TwinCard extends StatelessWidget {
               const SizedBox(height: 16),
               _Spec(label: 'CPU', value: build.cpu?.name ?? 'Não identificado'),
               _Spec(label: 'Placa-mãe', value: build.motherboard?.name ?? 'Não identificado'),
-              _Spec(label: 'RAM', value: build.ramSummary),
-              _Spec(label: 'GPU', value: build.gpuSummary),
+              _Spec(
+                label: 'RAM',
+                value: simulation.ram?.name ?? build.ramSummary,
+                simulated: simulation.ram != null,
+                originalValue: simulation.ram == null ? null : build.ramSummary,
+              ),
+              _Spec(
+                label: 'GPU',
+                value: simulation.gpu?.name ?? build.gpuSummary,
+                simulated: simulation.gpu != null,
+                originalValue: simulation.gpu == null ? null : build.gpuSummary,
+              ),
+              if (simulation.ssd != null)
+                _Spec(
+                  label: 'SSD',
+                  value: simulation.ssd!.name,
+                  simulated: true,
+                  originalValue: build.storageSummary,
+                ),
               const Spacer(),
               Align(
                 alignment: Alignment.centerRight,
@@ -76,10 +100,17 @@ class TwinCard extends StatelessWidget {
 }
 
 class _Spec extends StatelessWidget {
-  const _Spec({required this.label, required this.value});
+  const _Spec({
+    required this.label,
+    required this.value,
+    this.simulated = false,
+    this.originalValue,
+  });
 
   final String label;
   final String value;
+  final bool simulated;
+  final String? originalValue;
 
   @override
   Widget build(BuildContext context) {
@@ -98,13 +129,33 @@ class _Spec extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (simulated) ...[
+                  const StatusBadge(label: 'Simulação', tone: BadgeTone.simulation),
+                  const SizedBox(height: 4),
+                ],
+                Text(
+                  value,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                if (originalValue != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    'Atual: $originalValue',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.65),
+                        ),
                   ),
+                ],
+              ],
             ),
           ),
         ],

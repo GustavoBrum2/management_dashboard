@@ -21,7 +21,7 @@ void main() {
     expect(find.text('Frota de Digital Twins'), findsOneWidget);
     expect(find.text('Notebook de Teste'), findsOneWidget);
 
-    await tester.tap(find.text('Gerenciar'));
+    await tester.tap(find.text('Notebook de Teste'));
     await tester.pumpAndSettle();
 
     expect(find.text('Recomendações de upgrade'), findsOneWidget);
@@ -32,5 +32,32 @@ void main() {
     expect(find.textContaining('Corsair Vengeance'), findsOneWidget);
     expect(find.text('Custo-benefício'), findsOneWidget);
     expect(find.text('Compatível'), findsWidgets);
+
+    await tester.ensureVisible(find.text('Simular upgrade'));
+    await tester.tap(find.text('Simular upgrade'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Simulação'), findsWidgets);
+    expect(find.text('Simulando'), findsOneWidget);
+    expect(find.textContaining('Peça atual:'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Voltar à frota'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Frota de Digital Twins'), findsOneWidget);
+    expect(find.text('Simulação'), findsWidgets);
+    expect(find.textContaining('Corsair Vengeance'), findsWidgets);
+    expect(find.textContaining('Atual:'), findsOneWidget);
+
+    await tester.tap(find.text('Notebook de Teste'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Remover'));
+    await tester.tap(find.text('Remover'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Simulação'), findsNothing);
+    await tester.ensureVisible(find.text('Simular upgrade'));
+    expect(find.text('Simular upgrade'), findsOneWidget);
   });
 }
