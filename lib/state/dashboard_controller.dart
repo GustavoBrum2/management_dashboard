@@ -18,6 +18,7 @@ class DashboardController extends ChangeNotifier {
   final TwinsRepository _twinsRepository;
   final RecommendationService _recommendationService;
   final Map<String, UpgradeSimulation> _simulations = {};
+  final Map<String, RemoteDigitalTwin> _confirmedTwins = {};
 
   List<RemoteDigitalTwin> twins = const [];
   bool loading = true;
@@ -75,10 +76,10 @@ class DashboardController extends ChangeNotifier {
 
     try {
       final loaded = await _twinsRepository.fetchTwins();
-      twins = loaded;
+      twins = loaded.map(_mergeConfirmedUpgrade).toList();
       final selectedId = selectedTwin?.machineId;
       if (keepSelection && selectedId != null) {
-        selectedTwin = loaded
+        selectedTwin = twins
                 .where((twin) => twin.machineId == selectedId)
                 .firstOrNull ??
             selectedTwin;
@@ -162,5 +163,30 @@ class DashboardController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void confirmSimulation() {
+    final twin = selectedTwin;
+    if (twin == null || selectedSimulation.isEmpty) return;
+
+    final updated = applyConfirmedUpgrade(twin, selectedSimulation);
+    _simulations.remove(twin.machineId);
+    _confirmedTwins[updated.machineId] = updated;
+    twins = twins
+        .map((item) => item.machineId == updated.machineId ? updated : item)
+        .toList();
+    selectedTwin = updated;
+    recommendations = const [];
+    notifyListeners();
+  }
+
   bool isSimulating(Part part) => selectedSimulation.contains(part);
+
+  RemoteDigitalTwin _mergeConfirmedUpgrade(RemoteDigitalTwin remote) {
+    final local = _confirmedTwins[remote.machineId];
+    if (local == null) return remote;
+    return remote.copyWith(
+      updatedAt: local.updatedAt,
+      current: local.current,
+      history: local.history,
+    );
+  }
 }

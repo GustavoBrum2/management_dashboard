@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/digital_twin.dart';
+import '../models/pc_build.dart';
 import '../models/upgrade_simulation.dart';
 import '../theme/app_theme.dart';
 import 'stat_card.dart';
@@ -65,7 +66,7 @@ class TwinCard extends StatelessWidget {
               _Spec(label: 'Placa-mãe', value: build.motherboard?.name ?? 'Não identificado'),
               _Spec(
                 label: 'RAM',
-                value: simulation.ram?.name ?? build.ramSummary,
+                value: simulation.ram?.name ?? _ramNames(build),
                 simulated: simulation.ram != null,
                 originalValue: simulation.ram == null ? null : build.ramSummary,
               ),
@@ -97,6 +98,11 @@ class TwinCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _ramNames(PcBuild build) {
+  if (build.ram.isEmpty) return 'Não identificado';
+  return build.ram.map((item) => item.name).join(' + ');
 }
 
 class _Spec extends StatelessWidget {

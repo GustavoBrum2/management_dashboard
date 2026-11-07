@@ -41,7 +41,7 @@ class _ManagementDashboardAppState extends State<ManagementDashboardApp> {
   Widget build(BuildContext context) {
     return DashboardScope(
       controller: controller,
-      child: MaterialApp(title: 'TwinMatch Gestão', debugShowCheckedModeBanner: false, theme: AppTheme.dark, home: const DashboardShell()),
+      child: MaterialApp(title: 'PC Match', debugShowCheckedModeBanner: false, theme: AppTheme.dark, home: const DashboardShell()),
     );
   }
 }

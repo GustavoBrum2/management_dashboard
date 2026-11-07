@@ -58,6 +58,7 @@ class StatusBadge extends StatelessWidget {
       BadgeTone.value => (const Color(0xFF134E4A), const Color(0xFF5EEAD4)),
       BadgeTone.premium => (const Color(0xFF3B0764), const Color(0xFFE9D5FF)),
       BadgeTone.simulation => (const Color(0xFF1E3A5F), const Color(0xFF93C5FD)),
+      BadgeTone.history => (const Color(0xFF3F3C2E), const Color(0xFFFDE68A)),
       BadgeTone.neutral => (const Color(0xFF1E293B), const Color(0xFFCBD5E1)),
     };
 
@@ -72,4 +73,4 @@ class StatusBadge extends StatelessWidget {
   }
 }
 
-enum BadgeTone { ok, warning, value, premium, simulation, neutral }
+enum BadgeTone { ok, warning, value, premium, simulation, history, neutral }

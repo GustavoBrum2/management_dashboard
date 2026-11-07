@@ -39,6 +39,7 @@ class RemoteDigitalTwin {
     required this.createdAt,
     required this.updatedAt,
     required this.current,
+    this.history = const [],
   });
 
   final String machineId;
@@ -46,6 +47,7 @@ class RemoteDigitalTwin {
   final DateTime createdAt;
   final DateTime updatedAt;
   final HardwareSnapshot current;
+  final List<HardwareSnapshot> history;
 
   factory RemoteDigitalTwin.fromJson(String fallbackId, Map<String, dynamic> json) {
     return RemoteDigitalTwin(
@@ -54,8 +56,28 @@ class RemoteDigitalTwin {
       createdAt: asDateTime(json['createdAt']),
       updatedAt: asDateTime(json['updatedAt']),
       current: HardwareSnapshot.fromJson(asMap(json['current'])),
+      history: asList(json['history'])
+          .map((item) => HardwareSnapshot.fromJson(asMap(item)))
+          .toList(),
     );
   }
+
+  RemoteDigitalTwin copyWith({
+    DateTime? updatedAt,
+    HardwareSnapshot? current,
+    List<HardwareSnapshot>? history,
+  }) {
+    return RemoteDigitalTwin(
+      machineId: machineId,
+      name: name,
+      createdAt: createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      current: current ?? this.current,
+      history: history ?? this.history,
+    );
+  }
+
+  bool get hasUpgradeHistory => history.isNotEmpty;
 
   PcBuild get build => current.build;
 

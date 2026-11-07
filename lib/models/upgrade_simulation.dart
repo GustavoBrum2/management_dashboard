@@ -80,3 +80,28 @@ List<Part> _storageWithSimulation(List<Part> current, Ssd simulated) {
   }).toList();
   return [simulated, ...withoutSameRole];
 }
+
+const maxBuildHistory = 10;
+
+RemoteDigitalTwin applyConfirmedUpgrade(
+  RemoteDigitalTwin twin,
+  UpgradeSimulation simulation, {
+  DateTime? confirmedAt,
+}) {
+  if (simulation.isEmpty) return twin;
+
+  final now = confirmedAt ?? DateTime.now();
+  final upgraded = applySimulation(twin.build, simulation).copyWith(updatedAt: now);
+
+  return twin.copyWith(
+    updatedAt: now,
+    current: HardwareSnapshot(
+      id: 'upgrade-${now.microsecondsSinceEpoch}',
+      capturedAt: now,
+      source: 'upgrade',
+      build: upgraded,
+      detected: twin.current.detected,
+    ),
+    history: [twin.current, ...twin.history].take(maxBuildHistory).toList(),
+  );
+}

@@ -11,11 +11,13 @@ class HardwarePanel extends StatelessWidget {
     required this.original,
     this.simulation = const UpgradeSimulation(),
     this.onRemoveSimulation,
+    this.onConfirmSimulation,
   });
 
   final PcBuild original;
   final UpgradeSimulation simulation;
   final ValueChanged<RecommendationCategory>? onRemoveSimulation;
+  final VoidCallback? onConfirmSimulation;
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +45,16 @@ class HardwarePanel extends StatelessWidget {
             if (simulation.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
-                'As peças reais continuam no Firebase. O que está marcado como simulação existe só neste painel.',
+                'As peças reais continuam no Firebase. Confirme o upgrade para aplicar a simulação a esta máquina neste painel e guardar a build atual no histórico.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
+              ),
+              const SizedBox(height: 14),
+              FilledButton.icon(
+                onPressed: onConfirmSimulation,
+                icon: const Icon(Icons.check_circle_outline),
+                label: const Text('Confirmar upgrade'),
               ),
             ],
             const SizedBox(height: 18),
@@ -54,7 +62,7 @@ class HardwarePanel extends StatelessWidget {
             _Row(label: 'Placa-mãe', value: original.motherboard?.name ?? 'Não identificado'),
             _SimulatedRow(
               label: 'RAM',
-              originalValue: original.ramSummary,
+              originalValue: _ramDisplay(original),
               simulatedValue: simulation.ram == null
                   ? null
                   : '${simulation.ram!.capacityGb} GB ${simulation.ram!.type} ${simulation.ram!.speedMhz} MHz · ${simulation.ram!.name}',
@@ -87,6 +95,13 @@ class HardwarePanel extends StatelessWidget {
       ),
     );
   }
+}
+
+String _ramDisplay(PcBuild build) {
+  if (build.ram.isEmpty) return 'Não identificado';
+  return build.ram
+      .map((item) => '${item.capacityGb} GB ${item.type} ${item.speedMhz} MHz · ${item.name}')
+      .join(' + ');
 }
 
 class _SimulatedRow extends StatelessWidget {

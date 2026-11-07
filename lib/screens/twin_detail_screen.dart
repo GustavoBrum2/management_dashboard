@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../state/dashboard_controller.dart';
 import '../state/dashboard_scope.dart';
 import '../theme/app_theme.dart';
+import '../widgets/build_history_panel.dart';
 import '../widgets/hardware_panel.dart';
 import '../widgets/recommendation_panel.dart';
 
@@ -21,7 +23,9 @@ class TwinDetailScreen extends StatelessWidget {
       original: twin.build,
       simulation: controller.selectedSimulation,
       onRemoveSimulation: controller.removeSimulation,
+      onConfirmSimulation: () => _confirmUpgrade(context, controller),
     );
+    final history = BuildHistoryPanel(history: twin.history);
     final recommendations = RecommendationPanel(
       category: controller.recommendationCategory,
       recommendations: controller.recommendations,
@@ -31,6 +35,7 @@ class TwinDetailScreen extends StatelessWidget {
       onCategory: controller.setRecommendationCategory,
       onGenerate: () => controller.generateRecommendations(),
       onSimulate: controller.simulateRecommendation,
+      onConfirmSimulation: () => _confirmUpgrade(context, controller),
     );
 
     return Column(
@@ -71,7 +76,19 @@ class TwinDetailScreen extends StatelessWidget {
               ? Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: SingleChildScrollView(child: hardware)),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            hardware,
+                            if (twin.hasUpgradeHistory) ...[
+                              const SizedBox(height: 16),
+                              history,
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
                     const SizedBox(width: 16),
                     Expanded(child: SingleChildScrollView(child: recommendations)),
                   ],
@@ -79,12 +96,45 @@ class TwinDetailScreen extends StatelessWidget {
               : ListView(
                   children: [
                     hardware,
+                    if (twin.hasUpgradeHistory) ...[
+                      const SizedBox(height: 16),
+                      history,
+                    ],
                     const SizedBox(height: 16),
                     recommendations,
                   ],
                 ),
         ),
       ],
+    );
+  }
+
+  Future<void> _confirmUpgrade(BuildContext context, DashboardController controller) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar upgrade'),
+        content: const Text(
+          'A simulação passa a ser a configuração atual desta máquina. A build de agora entra no histórico.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Aplicar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    controller.confirmSimulation();
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Upgrade confirmado. A build anterior foi guardada no histórico.')),
     );
   }
 }

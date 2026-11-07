@@ -14,6 +14,7 @@ class RecommendationPanel extends StatelessWidget {
     required this.onCategory,
     required this.onGenerate,
     required this.onSimulate,
+    this.onConfirmSimulation,
     this.simulatedPart,
     this.missingMotherboard = false,
   });
@@ -24,6 +25,7 @@ class RecommendationPanel extends StatelessWidget {
   final ValueChanged<RecommendationCategory> onCategory;
   final VoidCallback onGenerate;
   final ValueChanged<MvpRecommendation> onSimulate;
+  final VoidCallback? onConfirmSimulation;
   final Part? simulatedPart;
   final bool missingMotherboard;
 
@@ -96,6 +98,7 @@ class RecommendationPanel extends StatelessWidget {
                   simulating: simulatedPart?.id == item.part.id,
                   canReplace: simulatedPart != null && simulatedPart?.id != item.part.id,
                   onSimulate: () => onSimulate(item),
+                  onConfirm: onConfirmSimulation,
                 ),
               ),
           ],
@@ -111,12 +114,14 @@ class _RecommendationTile extends StatelessWidget {
     required this.simulating,
     required this.canReplace,
     required this.onSimulate,
+    this.onConfirm,
   });
 
   final MvpRecommendation item;
   final bool simulating;
   final bool canReplace;
   final VoidCallback onSimulate;
+  final VoidCallback? onConfirm;
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +210,20 @@ class _RecommendationTile extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: simulating
-                  ? const StatusBadge(label: 'Simulando', tone: BadgeTone.simulation)
+                  ? Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.end,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const StatusBadge(label: 'Simulando', tone: BadgeTone.simulation),
+                        FilledButton.icon(
+                          onPressed: onConfirm,
+                          icon: const Icon(Icons.check_circle_outline),
+                          label: const Text('Confirmar upgrade'),
+                        ),
+                      ],
+                    )
                   : FilledButton.tonalIcon(
                       onPressed: onSimulate,
                       icon: Icon(canReplace ? Icons.swap_horiz : Icons.science_outlined),

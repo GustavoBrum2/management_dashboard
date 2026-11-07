@@ -1,11 +1,11 @@
 {
-    "name": "TwinMatch Gestão",
-    "short_name": "TwinMatch",
+    "name": "PC Match",
+    "short_name": "PC Match",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0B1220",
     "theme_color": "#2DD4BF",
-    "description": "Dashboard de gestão dos Digital Twins TwinMatch.",
+    "description": "Dashboard de gestão dos Digital Twins PC Match.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

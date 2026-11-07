@@ -40,7 +40,7 @@ class _DashboardBody extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'TWINMATCH',
+                      'PC MATCH',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             letterSpacing: 1.6,
                             color: colors.primary,

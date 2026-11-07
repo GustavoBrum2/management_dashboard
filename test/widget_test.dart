@@ -40,6 +40,8 @@ void main() {
     expect(find.text('Simulação'), findsWidgets);
     expect(find.text('Simulando'), findsOneWidget);
     expect(find.textContaining('Peça atual:'), findsOneWidget);
+    expect(find.text('Últimos builds'), findsNothing);
+    expect(find.text('Confirmar upgrade'), findsWidgets);
 
     await tester.tap(find.byTooltip('Voltar à frota'));
     await tester.pumpAndSettle();
@@ -59,5 +61,58 @@ void main() {
     expect(find.text('Simulação'), findsNothing);
     await tester.ensureVisible(find.text('Simular upgrade'));
     expect(find.text('Simular upgrade'), findsOneWidget);
+  });
+
+  testWidgets('confirma o upgrade, troca a build e mostra o histórico', (tester) async {
+    tester.view.physicalSize = const Size(1440, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await tester.pumpWidget(
+      ManagementDashboardApp(
+        twinsRepository: FakeTwinsRepository([sampleTwin()]),
+        partsRepository: FakePartsRepository(ram: [sampleCompatibleRam()]),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Notebook de Teste'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Gerar recomendações'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Simular upgrade'));
+    await tester.tap(find.text('Simular upgrade'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Últimos builds'), findsNothing);
+
+    await tester.ensureVisible(find.text('Confirmar upgrade').first);
+    await tester.tap(find.text('Confirmar upgrade').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aplicar'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Simulação'), findsNothing);
+    expect(find.text('Simulando'), findsNothing);
+    expect(find.text('Confirmar upgrade'), findsNothing);
+    expect(find.text('Últimos builds'), findsOneWidget);
+    expect(find.text('Build anterior'), findsOneWidget);
+    expect(find.textContaining('Kingston 16GB'), findsWidgets);
+    expect(find.textContaining('Corsair Vengeance'), findsWidgets);
+
+    await tester.tap(find.byTooltip('Voltar à frota'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Simulação'), findsNothing);
+    expect(find.textContaining('Corsair Vengeance'), findsWidgets);
+    expect(find.textContaining('Atual:'), findsNothing);
+
+    await tester.tap(find.text('Notebook de Teste'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Últimos builds'), findsOneWidget);
+    expect(find.text('Build anterior'), findsOneWidget);
   });
 }

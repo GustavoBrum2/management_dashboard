@@ -74,6 +74,10 @@ class PcBuild {
   }
 
   PcBuild copyWith({
+    String? id,
+    String? name,
+    DateTime? createdAt,
+    DateTime? updatedAt,
     Cpu? cpu,
     Motherboard? motherboard,
     List<Ram>? ram,
@@ -84,10 +88,10 @@ class PcBuild {
     Cooler? cooler,
   }) {
     return PcBuild(
-      id: id,
-      name: name,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      id: id ?? this.id,
+      name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       cpu: cpu ?? this.cpu,
       motherboard: motherboard ?? this.motherboard,
       ram: ram ?? this.ram,
